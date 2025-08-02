@@ -84,22 +84,5 @@ suspend fun Synchronizer.changeListSync(
     modelUpdater: suspend (List<String>) -> Unit,
     versionUpdater: ChangeListVersions.(Int) -> ChangeListVersions
 ) = suspendRunCatching {
-    // Fetch the change list since the last sync (akin to a git fetch)
-    val currentVersion = versionReader(getChangeListVersions())
-    val changeList = changeListFetcher(currentVersion)
-    if (changeList.isEmpty()) return@suspendRunCatching true
-
-    val (deleted, updated) = changeList.partition(FirestoreChangeList::isDelete)
-
-    // Delete models that have been deleted server-side
-    modelDeleter(deleted.map(FirestoreChangeList::id))
-
-    // Using the change list, pull down and save the changes (akin to a git pull)
-    modelUpdater(updated.map(FirestoreChangeList::id))
-
-    // Update the last synced version (akin to updating local git HEAD)
-    val latestVersion = changeList.last().changeListVersion
-    updateChangeListVersions {
-        versionUpdater(latestVersion)
-    }
+    
 }.isSuccess
