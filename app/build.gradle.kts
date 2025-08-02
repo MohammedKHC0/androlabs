@@ -8,7 +8,6 @@ plugins {
     alias(libs.plugins.androlabs.android.application.compose)
     alias(libs.plugins.androlabs.android.application.flavors)
     alias(libs.plugins.androlabs.android.hilt)
-    alias(libs.plugins.androlabs.android.application.firebase)
 }
 
 android {
