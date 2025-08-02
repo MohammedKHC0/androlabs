@@ -29,7 +29,7 @@ internal fun HomeRoute(
     contentType: ContentType,
     onAccountButtonClick: () -> Unit,
     onLabItemClick: () -> Unit,
-    onFABClick: () -> Unit,
+    onFABClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -53,7 +53,7 @@ internal fun HomeRoute(
 }
 
 @Composable
-fun HomeScreen(
+internal fun HomeScreen(
     contentType: ContentType,
     labFeedUIState: ProjectFeedUiState,
     recentSearchQueriesUiState: RecentSearchQueriesUiState,
@@ -63,7 +63,7 @@ fun HomeScreen(
     onRecentSearchDelete: (String) -> Unit,
     onClearRecentSearches: () -> Unit,
     onLabItemClick: () -> Unit,
-    onFABClick: () -> Unit,
+    onFABClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     HomeScreenLayout(

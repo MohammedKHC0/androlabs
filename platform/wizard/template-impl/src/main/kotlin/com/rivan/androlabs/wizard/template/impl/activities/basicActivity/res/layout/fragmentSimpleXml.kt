@@ -21,7 +21,7 @@ import com.rivan.androlabs.wizard.template.api.getMaterialComponentName
 fun fragmentSimpleXml(
     navGraphName: String,
     navHostFragmentId: String,
-    useAndroidX: Boolean
+    useAndroidX: Boolean,
 ): String {
     val layout = getMaterialComponentName("android.support.constraint.ConstraintLayout", useAndroidX)
 

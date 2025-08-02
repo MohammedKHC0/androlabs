@@ -17,38 +17,48 @@
 package com.rivan.androlabs.feature.npw
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.rivan.androlabs.wizard.template.api.FormFactor
 import com.rivan.androlabs.wizard.template.api.Template
-import com.rivan.androlabs.wizard.template.api.TemplateCategory
+import com.rivan.androlabs.wizard.template.api.WizardUiContext
 import com.rivan.androlabs.wizard.template.impl.WizardTemplateProviderImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class NewProjectWizardViewModel : ViewModel() {
 
     private val _tabState = MutableStateFlow(
         NpwTabState(
-            titles = TemplateCategory.values().asList(),
-            currentIndex = 0
-        )
+            titles = FormFactor.entries.filterNot { it == FormFactor.Generic },
+            currentIndex = 0,
+        ),
     )
     val tabState: StateFlow<NpwTabState> = _tabState.asStateFlow()
 
+    private val _dialogState = MutableStateFlow(
+        NpwDialogState(
+            canGoBack = false,
+            canGoForward = false,
+        ),
+    )
+    val dialogState: StateFlow<NpwDialogState> = _dialogState.asStateFlow()
+
     fun getTemplates(): List<Template> {
         val templates = WizardTemplateProviderImpl().getTemplates()
+            .filter { WizardUiContext.NewProject in it.uiContexts }
         val filteredTemplates = when (tabState.value.currentIndex) {
-            0 -> templates.filter { it.templateCategory == TemplateCategory.Mobile }
-            1 -> templates.filter { it.templateCategory == TemplateCategory.Wear }
-            2 -> templates.filter { it.templateCategory == TemplateCategory.Tv }
-            3 -> templates.filter { it.templateCategory == TemplateCategory.Automotive }
-            4 -> templates.filter { it.templateCategory == TemplateCategory.Lab }
+            0 -> templates.filter { it.formFactor == FormFactor.Mobile }
+            1 -> templates.filter { it.formFactor == FormFactor.Wear }
+            2 -> templates.filter { it.formFactor == FormFactor.Tv }
+            3 -> templates.filter { it.formFactor == FormFactor.Automotive }
             else -> templates
         }
 
         return sequence {
-            // If currently selected tab is 'Lab', then do not return `Template.NoActivity`
-            if (tabState.value.currentIndex != 4) yield(Template.NoActivity)
+            yield(Template.NoActivity)
             for (template in filteredTemplates) yield(template)
         }.toList()
     }
@@ -60,9 +70,16 @@ class NewProjectWizardViewModel : ViewModel() {
             }
         }
     }
-}
 
-data class NpwTabState(
-    val titles: List<TemplateCategory>,
-    val currentIndex: Int
-)
+    fun setCanGoBack(canGoBack: Boolean) {
+        viewModelScope.launch {
+            _dialogState.value = _dialogState.value.copy(canGoBack = canGoBack)
+        }
+    }
+
+    fun setCanGoForward(canGoForward: Boolean) {
+        viewModelScope.launch {
+            _dialogState.value = _dialogState.value.copy(canGoForward = canGoForward)
+        }
+    }
+}

@@ -21,10 +21,28 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DockedSearchBar
+import androidx.compose.material3.ExpandedDockedSearchBar
+import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SearchBarScrollBehavior
+import androidx.compose.material3.SearchBarState
+import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopSearchBar
+import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -72,18 +90,19 @@ fun ALSearchBar(
         } else {
             16.dp
         },
-        label = "SearchBar Horizontal Padding Animation"
+        label = "SearchBar Horizontal Padding Animation",
     )
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .semantics { isTraversalGroup = true }
-            .zIndex(1f)
+            .zIndex(1f),
     ) {
         SearchBar(
             modifier = modifier
                 .align(Alignment.TopCenter)
+                .padding(horizontal = horizontalPadding)
                 .semantics { traversalIndex = 0f },
             query = text,
             onQueryChange = { onTextChange(it) },
@@ -96,7 +115,79 @@ fun ALSearchBar(
             placeholder = { Text(text = stringResource(id = placeholderRes)) },
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
-            content = content
+            content = content,
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ALTopSearchBar(
+    scrollBehavior: SearchBarScrollBehavior,
+    @StringRes placeholderRes: Int,
+    isDocked: Boolean,
+    modifier: Modifier = Modifier,
+    searchBarState: SearchBarState = rememberSearchBarState(),
+    textFieldState: TextFieldState = rememberTextFieldState(),
+    onSearch: (String) -> Unit,
+    onLeadingIconClick: () -> Unit,
+    onTrailingIconClick: () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    // TODO: Allow setting the leading and trailing icons
+    val inputField =
+        @Composable {
+            SearchBarDefaults.InputField(
+                modifier = modifier,
+                searchBarState = searchBarState,
+                textFieldState = textFieldState,
+                onSearch = onSearch,
+                placeholder = { Text(text = stringResource(id = placeholderRes)) },
+                leadingIcon = {
+                    if (searchBarState.currentValue == SearchBarValue.Expanded) {
+                        IconButton(
+                            onClick = onLeadingIconClick,
+                        ) {
+                            Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = "Back")
+                        }
+                    } else {
+                        Icon(Icons.Default.Search, contentDescription = null)
+                    }
+                },
+                trailingIcon = {
+                    if (searchBarState.currentValue == SearchBarValue.Expanded) {
+                        IconButton(
+                            onClick = { /* TODO */ }
+                        ) {
+                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                        }
+                    } else {
+                        IconButton(
+                            onClick = onTrailingIconClick,
+                        ) {
+                            Icon(Icons.Default.AccountCircle, contentDescription = null)
+                        }
+                    }
+                },
+            )
+        }
+
+    TopSearchBar(
+        scrollBehavior = scrollBehavior,
+        state = searchBarState,
+        inputField = inputField,
+    )
+    if (isDocked) {
+        ExpandedDockedSearchBar(
+            state = searchBarState,
+            inputField = inputField,
+            content = content,
+        )
+    } else {
+        ExpandedFullScreenSearchBar(
+            state = searchBarState,
+            inputField = inputField,
+            content = content,
         )
     }
 }
@@ -135,7 +226,7 @@ fun ALDockedSearchBar(
         modifier = Modifier
             .fillMaxSize()
             .semantics { isTraversalGroup = true }
-            .zIndex(1f)
+            .zIndex(1f),
     ) {
         DockedSearchBar(
             modifier = modifier
@@ -152,7 +243,7 @@ fun ALDockedSearchBar(
             placeholder = { Text(text = stringResource(id = placeholderRes)) },
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
-            content = content
+            content = content,
         )
     }
 }

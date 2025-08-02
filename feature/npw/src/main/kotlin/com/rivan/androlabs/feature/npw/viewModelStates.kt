@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Rivan Parmar
+ * Copyright 2025 Rivan Parmar
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package com.rivan.androlabs.wizard.template.api
+package com.rivan.androlabs.feature.npw
 
-/**
- * Representation of all types of projects we can build. This class is used in the new project
- * wizard to populate the tab names.
- */
-enum class TemplateCategory(val displayName: String) {
-    Mobile("Phone and Tablet"),
-    Wear("Wear OS"),
-    Tv("Television"),
-    Automotive("Automotive"),
-    Lab("Lab");
+import com.rivan.androlabs.wizard.template.api.FormFactor
 
-    override fun toString(): String = displayName
-}
+data class NpwTabState(
+    val titles: List<FormFactor>,
+    val currentIndex: Int,
+)
+
+data class NpwDialogState(
+    val canGoBack: Boolean,
+    val canGoForward: Boolean,
+)
